@@ -1,21 +1,40 @@
 #!/bin/bash
 
-
-
 function Configuration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
 	sed -n '10,999p' Hostname_iDrac_List | while read HostnameiDracLine
 	do
 		export HostnameiDrac=$HostnameiDracLine-ilo.eng.vmware.com
-# Confiuration for iDrac
+		
+		HostnameDNSTest
+		if [[ $HostnameDNSResult != 'Yes' ]];then
+			break
+		fi
 		HostnamePingTest
+		if [[ $HostnamePingResult == 'No' ]];then
+			break
+		fi
+		AddiDracUserDell
 	done
 }
 
+function HostnameDNSTest(){
+# To test resolving hostname
+	HostnameDNSTest_1=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print \$2}')
+	HostnameDNSTest_2=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print \$3}')
+	HostnameDNSTest_3=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print \$4}')
+	if [[ $HostnameDNSTest_1 == 'has' && $HostnameDNSTest_2 == 'address' ]];then
+		HostnameDNSResult='Yes'
+	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
+		HostnameDNSResult='No'
+	else
+		HostnameDNSResult='None'
+	fi	
+}
 
 function HostnamePingTest(){
 # To test pingable for iDrac Hostname
-	HostnamePingTest=`ping -w 1 $HostnameiDrac | grep loss | awk '{print \$6}'`
+	HostnamePingTest=$(ping -w 1 $HostnameiDrac | grep loss | awk '{print \$6}')
 	if [[ $HostnamePingTest == '0%'  ]];then
 		HostnamePingResult='Yes'
 	else
@@ -25,29 +44,33 @@ function HostnamePingTest(){
 	echo $HostnamePingResult
 }
 
-
 function AddiDracUserDell(){
 # Add user vmware in iDrac, and set privileges. - Just for Dell 
-	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$HostnameiDrac.eng.vmware.com > /dev/null 2>&1 << idrac_racadm
+	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$HostnameiDrac > /dev/null 2>&1 << iDrac_racadm
 	#Adduser, number 2 is unique user index
 	racadm set idrac.users.3.username vmware
 
 	#Set password
-	racadm set idrac.users.3.password vmware
+	racadm set idrac.users.3.password VMware1!
 
 	#Enable user
 	racadm set idrac.users.3.enable 1
 
-	#Verify user
-	racadm get idrac.users.3
-
 	#set user privileges to Administrator
 	racadm set idrac.users.3.privilege 0x1ff
 	exit"
-idrac_racadm
+iDrac_racadm
 	return
 }
 
-Configuration
-# update at 7/4/2022
-# update
+function iDracConfigurationVerify(){
+# Check if the configuration is successfully for iDrac
+	iDracUserVerifyOutput=$(sudo sshpass -p VMware1! ssh -o StrictHostKeyChecking=no vmware@$HostnameiDrac racadm get idrac.users.3)
+	iDracUserVerify=$(echo $iDracUserVerifyOutput | awk '{print $12}' | awk -F= '{print $2}')
+	echo $iDracUserVerify
+
+}
+
+HostnameiDrac=sha1-hs1-r1415-ilo.eng.vmware.com
+iDracConfigurationVerify
+

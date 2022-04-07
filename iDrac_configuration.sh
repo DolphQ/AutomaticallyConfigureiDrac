@@ -9,11 +9,13 @@ function Configuration(){
 		
 		HostnameDNSTest
 		if [[ $HostnameDNSResult != 'Yes' ]];then
-			break
+			Output
+			continue
 		fi
 		HostnamePingTest
 		if [[ $HostnamePingResult == 'No' ]];then
-			break
+			Output
+			continue
 		fi
 		AddiDracUserDell
 		iDracConfigurationVerify
@@ -30,10 +32,10 @@ function HostnameDNSTest(){
 		HostnameDNSResult='Yes'
 	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
 		HostnameDNSResult='No'
-		iDracIP='DNS failed'
+		iDracIP='DNS_failed'
 	else
 		HostnameDNSResult='None'
-		iDracIP='DNS failed '
+		iDracIP='DNS_failed '
 	fi	
 }
 
@@ -46,7 +48,7 @@ function HostnamePingTest(){
 	else
 #		echo -e "\033[31m Yes \033[0m"	-Echo colored font
 		HostnamePingResult='No'
-		iDracIP='Ping failed'
+		iDracIP='Ping_failed'
 	fi
 }
 

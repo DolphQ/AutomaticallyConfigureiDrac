@@ -2,6 +2,7 @@
 
 function Configuration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
+	echo 'Configuration for iDrac is in progress.......'
 	sed -n '10,999p' Hostname_iDrac_List | while read HostnameiDracLine
 	do
 		export HostnameiDrac=$HostnameiDracLine-ilo.eng.vmware.com
@@ -15,39 +16,44 @@ function Configuration(){
 			break
 		fi
 		AddiDracUserDell
+		iDracConfigurationVerify
+		Output
 	done
 }
 
 function HostnameDNSTest(){
 # To test resolving hostname
-	HostnameDNSTest_1=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print \$2}')
-	HostnameDNSTest_2=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print \$3}')
-	HostnameDNSTest_3=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print \$4}')
+	HostnameDNSTest_1=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print $2}')
+	HostnameDNSTest_2=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print $3}')
+	HostnameDNSTest_3=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print $4}')
 	if [[ $HostnameDNSTest_1 == 'has' && $HostnameDNSTest_2 == 'address' ]];then
 		HostnameDNSResult='Yes'
 	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
 		HostnameDNSResult='No'
+		iDracIP='DNS failed'
 	else
 		HostnameDNSResult='None'
+		iDracIP='DNS failed '
 	fi	
 }
 
 function HostnamePingTest(){
 # To test pingable for iDrac Hostname
-	HostnamePingTest=$(ping -w 1 $HostnameiDrac | grep loss | awk '{print \$6}')
+	HostnamePingTest=$(ping -w 1 $HostnameiDrac | grep loss | awk '{print $6}')
 	if [[ $HostnamePingTest == '0%'  ]];then
 		HostnamePingResult='Yes'
+		iDracIP=$HostnameDNSTest_3
 	else
 #		echo -e "\033[31m Yes \033[0m"	-Echo colored font
 		HostnamePingResult='No'
+		iDracIP='Ping failed'
 	fi
-	echo $HostnamePingResult
 }
 
 function AddiDracUserDell(){
 # Add user vmware in iDrac, and set privileges. - Just for Dell 
 	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$HostnameiDrac > /dev/null 2>&1 << iDrac_racadm
-	#Adduser, number 2 is unique user index
+	#Adduser, number 3 is unique user index
 	racadm set idrac.users.3.username vmware
 
 	#Set password
@@ -64,13 +70,21 @@ iDrac_racadm
 }
 
 function iDracConfigurationVerify(){
-# Check if the configuration is successfully for iDrac
-	iDracUserVerifyOutput=$(sudo sshpass -p VMware1! ssh -o StrictHostKeyChecking=no vmware@$HostnameiDrac racadm get idrac.users.3)
+# Verify if the configuration is successfully for iDrac
+	iDracUserVerifyOutput=$(sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$HostnameiDrac racadm get idrac.users.3)
 	iDracUserVerify=$(echo $iDracUserVerifyOutput | awk '{print $12}' | awk -F= '{print $2}')
-	echo $iDracUserVerify
+	iDracUser=$(echo $iDracUserVerifyOutput | awk '{print $22}' | awk -F= '{print $2}')
+	if [[ $iDracUserVerify == '0x1ff' && $iDracUser == 'vmware' ]];then
+		iDracUserAccountVerify='Successfully'
+	else
+		iDracUserAccountVerify='Failed'
+	fi
 
 }
 
-HostnameiDrac=sha1-hs1-r1415-ilo.eng.vmware.com
-iDracConfigurationVerify
+function Output(){
+        printf "%-8s %17s %17s %10s \n" +---- ----+---- ----+---- ----+
+        printf "%-20s %-17s %-20s \n" "| "$HostnameiDracLine "| "$iDracIP "| "$iDracUserAccountVerify
+}
 
+Configuration

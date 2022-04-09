@@ -7,29 +7,32 @@
 # 2. Set PSU Redundancy and Hot Spare
 # 3. Get Serial Number and Mac address from iDrac
 
+source ./Configuration_InputOutput.sh
+
 function Configuration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
 	echo 'Configuration for iDrac is in progress.......'
 	echo "$(printf "\033[1;34mThe configuration result is as follows:\033[0m")"
+	Output Title
 	sed -n '10,999p' Hostname_iDrac_List | while read HostnameiDracLine
 	do
 		export HostnameiDrac=$HostnameiDracLine-ilo.eng.vmware.com
-		
 		HostnameDNSTest
 		if [[ $HostnameDNSResult != 'Yes' ]];then
 			iDracUserAccountVerify=$(printf "\033[1;31mFailed\033[0m")
-			Output
+			Output DNSFailed
 			continue
 		fi
 		HostnamePingTest
 		if [[ $HostnamePingResult == 'No' ]];then
-			Output
+			Output PingFailed
 			continue
 		fi
 		AddiDracUserDell
 		iDracConfigurationVerify
-		Output
+		Output Success
 	done
+	Output Tail
 }
 
 function HostnameDNSTest(){
@@ -84,4 +87,4 @@ function iDracConfigurationVerify(){
 	fi
 
 }
-
+Configuration

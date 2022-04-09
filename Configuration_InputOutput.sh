@@ -1,10 +1,11 @@
 #!/bin/bash
 
-<< Test
+#<< Test
 HostnameiDrac=sha1-hs1-r1415
-iDracIP='10.255.255.255'
+iDracIP=$(printf "\033[1;31mDNS_failed\033[0m")
+#iDracIP='10.255.255.255'
 iDracUserAccountVerify='Successfully'
-Test
+#Test
 
 function GetUsernamePassword(){
 # Get username and password from user entering
@@ -23,12 +24,36 @@ function GetUsernamePassword(){
 			exit
 		fi
 	done      	
-	return
 }
+
 
 function Output(){
-	printf "%-8s %17s %17s %10s \n" +---- ----+---- ----+---- ----+
-	printf "%-20s %-17s %-20s \n" "| "$HostnameiDrac "| "$iDracIP "| "$iDracUserAccountVerify
-	printf "%-8s %17s %17s %10s \n" +---- ----+---- ----+---- ----+
-}
+case $1 in
 
+	Title)
+echo "+------------------+------------------+------------------+------------------+------------------+
+$(printf "|%-18s" 'iDrac Hostname')$(printf "|%-18s" 'iDrac IP')$(printf "|%-18s" 'Serial Number')$(printf "|%-18s" 'vmware account')$(printf "|%-18s" 'PSU Balance')"
+;;
+
+	DNSFailed)
+echo "+------------------+------------------+------------------+------------------+------------------+
+$(printf "|%-18s" $HostnameiDracLine)$(printf "|%-29s" $iDracIP)$(printf "|%-18s" $SerialNumber)$(printf "|%-29s" $iDracUserAccountVerify)$(printf "|%-18s" $PSUBalance)"
+;;
+
+	PingFailed)
+echo "+------------------+------------------+------------------+------------------+------------------+
+$(printf "|%-18s" $HostnameiDracLine)$(printf "|%-30s" $iDracIP)$(printf "|%-18s" $SerialNumber)$(printf "|%-18s" $iDracUserAccountVerify)$(printf "|%-18s" $PSUBalance)"
+;;
+
+	Success)
+echo "+------------------+------------------+------------------+------------------+------------------+
+$(printf "|%-18s" $HostnameiDracLine)$(printf "|%-18s" $iDracIP)$(printf "|%-18s" $SerialNumber)$(printf "|%-29s" $iDracUserAccountVerify)$(printf "|%-18s" $PSUBalance)"
+;;
+
+	Tail)
+echo "+------------------+------------------+------------------+------------------+------------------+"
+;;
+
+esac
+
+}

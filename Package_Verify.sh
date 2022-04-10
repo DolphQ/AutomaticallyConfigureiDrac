@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# for package verify
+
 function PackageVerify(){
 	PackageVerifyInfo=$(dpkg -s $1 2> /dev/null)
 	PackageStatus=$(echo "$PackageVerifyInfo" | grep Status | awk -F: '{print $2}' |sed 's/^[\ ]//g')

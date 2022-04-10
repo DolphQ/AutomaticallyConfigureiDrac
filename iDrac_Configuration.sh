@@ -7,6 +7,7 @@
 # 2. Set PSU Redundancy and Hot Spare
 # 3. Get Serial Number and Mac address from iDrac
 
+# Add source from other scripts
 source ./Configuration_InputOutput.sh
 source ./PackageCheck.sh
 

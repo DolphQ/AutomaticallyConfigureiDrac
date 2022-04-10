@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Input and Output for configuration script for dell
+
 # Create 2 temporary file for the script to use
 ConfigurationResult=$(mktemp)
 

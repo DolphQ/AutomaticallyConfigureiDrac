@@ -12,11 +12,12 @@ source ./Configuration_InputOutput.sh
 function Configuration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
 	Output Title
-	sed -n '10,999p' Hostname_iDrac_List | while read iDracHostnameInfo
+	Progress&
+	for iDracHostnameInfo in $(sed -n '10,999p' Hostname_iDrac_List);
 	do
 		ControlNumber=1
 		export iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
-		{
+#		{
 		HostnameDNSTest
 		if [[ $HostnameDNSResult != 'Yes' ]];then
 			Output DNSFailed
@@ -30,12 +31,13 @@ function Configuration(){
 		AddiDracUserDell
 		GetInfoDell
 		Output Success
-		}&
-		ControlNumber=$[$ControlNumber+1]
-		if [[ $ControlNumber -eq 10 ]];then
-			wait
-			ControlNumber=1
-		fi
+#		} &
+		#ControlNumber=$[$ControlNumber+1]
+		#if [[ $ControlNumber -eq 10 ]];then
+		#	wait
+		#	ControlNumber=1
+		#fi
+	done
 	wait
 	Output Tail
 	cat Configuration_Result.txt
@@ -76,7 +78,7 @@ function AddiDracUserDell(){
 	racadm set idrac.users.3.password VMware1!
 	racadm set idrac.users.3.enable 1
 	racadm set idrac.users.3.privilege 0x1ff
-	exit"
+	"
 iDrac_racadm
 	return
 }
@@ -89,6 +91,7 @@ function GetInfoDell(){
 	iDracUserInfomation=$(sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname racadm get idrac.users.3)
 	iDracUserInfo=$(echo "$iDracUserInfomation" | grep UserName | awk -F= '{print $2}')
 }
-
-
+#iDracHostname='sha1-hs1-r2215-ilo.eng.vmware.com'
+#HostnameDNSTest
+#echo $iDracIPInfo
 Configuration

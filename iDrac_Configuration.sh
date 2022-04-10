@@ -11,15 +11,14 @@ source ./Configuration_InputOutput.sh
 
 function Configuration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
-	echo 'Configuration for iDrac is in progress.......'
-	echo "$(printf "\033[1;34mThe configuration result is as follows:\033[0m")"
 	Output Title
-	sed -n '10,999p' Hostname_iDrac_List | while read HostnameiDracLine
+	sed -n '10,999p' Hostname_iDrac_List | while read iDracHostnameInfo
 	do
-		export HostnameiDrac=$HostnameiDracLine-ilo.eng.vmware.com
+		ControlNumber=1
+		export iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
+		{
 		HostnameDNSTest
 		if [[ $HostnameDNSResult != 'Yes' ]];then
-			iDracUserAccountVerify=$(printf "\033[1;31mFailed\033[0m")
 			Output DNSFailed
 			continue
 		fi
@@ -29,43 +28,50 @@ function Configuration(){
 			continue
 		fi
 		AddiDracUserDell
-		iDracConfigurationVerify
+		GetInfoDell
 		Output Success
-	done
+		}&
+		ControlNumber=$[$ControlNumber+1]
+		if [[ $ControlNumber -eq 10 ]];then
+			wait
+			ControlNumber=1
+		fi
+	wait
 	Output Tail
+	cat Configuration_Result.txt
+	exit
 }
 
 function HostnameDNSTest(){
 # To test resolving hostname
-	HostnameDNSTest_1=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print $2}')
-	HostnameDNSTest_2=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print $3}')
-	HostnameDNSTest_3=$(host $HostnameiDrac | grep $HostnameiDrac | awk '{print $4}')
+	HostnameDNSTest_1=$(host $iDracHostname | grep $iDracHostname | awk '{print $2}')
+	HostnameDNSTest_2=$(host $iDracHostname | grep $iDracHostname | awk '{print $3}')
+	HostnameDNSTest_3=$(host $iDracHostname | grep $iDracHostname | awk '{print $4}')
 	if [[ $HostnameDNSTest_1 == 'has' && $HostnameDNSTest_2 == 'address' ]];then
 		HostnameDNSResult='Yes'
 	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
 		HostnameDNSResult='No'
-		iDracIP=$(printf "\033[1;31mDNS_failed\033[0m")
+		iDracIPInfo='DNS failed'
 	else
 		HostnameDNSResult='None'
-		iDracIP=$(printf "\033[1;31mDNS_failed\033[0m")
+		iDracIPInfo='DNS failed'
 	fi	
 }
 
 function HostnamePingTest(){
 # To test pingable for iDrac Hostname
-	HostnamePingTest=$(ping -w 1 $HostnameiDrac | grep loss | awk '{print $6}')
+	HostnamePingTest=$(ping -w 1 $iDracHostname | grep loss | awk '{print $6}')
 	if [[ $HostnamePingTest == '0%'  ]];then
 		HostnamePingResult='Yes'
-		iDracIP=$HostnameDNSTest_3
 	else
 		HostnamePingResult='No'
-		iDracIP=$(printf "\033[1;31mPing_failed\033[0m")
+		iDracIPInfo='Ping failed'
 	fi
 }
 
 function AddiDracUserDell(){
 # Add user vmware in iDrac, and set privileges. - Just for Dell 
-	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$HostnameiDrac > /dev/null 2>&1 << iDrac_racadm
+	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > /dev/null 2>&1 << iDrac_racadm
 	racadm set idrac.users.3.username vmware
 	racadm set idrac.users.3.password VMware1!
 	racadm set idrac.users.3.enable 1
@@ -75,16 +81,14 @@ iDrac_racadm
 	return
 }
 
-function iDracConfigurationVerify(){
-# Verify if the configuration is successfully for iDrac
-	iDracUserVerifyOutput=$(sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$HostnameiDrac racadm get idrac.users.3)
-	iDracUserVerify=$(echo $iDracUserVerifyOutput | awk '{print $12}' | awk -F= '{print $2}')
-	iDracUser=$(echo $iDracUserVerifyOutput | awk '{print $22}' | awk -F= '{print $2}')
-	if [[ $iDracUserVerify == '0x1ff' && $iDracUser == 'vmware' ]];then
-		iDracUserAccountVerify=$(printf "\033[1;32mSuccessfully\033[0m")
-	else
-		iDracUserAccountVerify=$(printf "\033[1;31mFailed\033[0m")
-	fi
-
+function GetInfoDell(){
+# Get server's info from Dell iDrac
+	iDracSysInfomation=$(sudo sshpass -p VMware1! ssh -o StrictHostKeyChecking=no vmware@$iDracHostname racadm getsysinfo)
+	SerialNumberInfo=$(echo "$iDracSysInfomation" | grep "Service\ Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
+	iDracIPInfo=$(echo "$iDracSysInfomation" | head -n 25 | grep "Current\ IP\ Address" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
+	iDracUserInfomation=$(sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname racadm get idrac.users.3)
+	iDracUserInfo=$(echo "$iDracUserInfomation" | grep UserName | awk -F= '{print $2}')
 }
+
+
 Configuration

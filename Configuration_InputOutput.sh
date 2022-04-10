@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#<< Test
+<< Test
 HostnameiDrac=sha1-hs1-r1415
-iDracIP=$(printf "\033[1;31mDNS_failed\033[0m")
-#iDracIP='10.255.255.255'
-iDracUserAccountVerify='Successfully'
-#Test
+iDracIPInfo=$(printf "\033[1;31mDNS_failed\033[0m")
+#iDracIPInfo='10.255.255.255'
+iDracUserInfo='Successfully'
+Test
 
 function GetUsernamePassword(){
 # Get username and password from user entering
@@ -26,32 +26,50 @@ function GetUsernamePassword(){
 	done      	
 }
 
+function Progress(){
+        Number=0
+        Strip=""
+        Trun=("\\" "|" "/" "-")
+        while [ $Number -le 100 ]
+        do
+                let index=i%4
+                printf "\033[1;35mConfigurating\033[0m[%-100s] %d %c\r" "$Strip" "$Number" "${Trun[$index]}"
+                sleep 0.35
+                let Number=Number+1
+                Strip+="#"
+        done
+echo ""
+}
 
 function Output(){
 case $1 in
 
 	Title)
-echo "+------------------+------------------+------------------+------------------+------------------+
-$(printf "|%-18s" 'iDrac Hostname')$(printf "|%-18s" 'iDrac IP')$(printf "|%-18s" 'Serial Number')$(printf "|%-18s" 'vmware account')$(printf "|%-18s" 'PSU Balance')"
+echo 'Configuration for iDrac is in progress.......
+'
+printf "
+\033[1;33mThe configuration result was saved in Configuration_Result.txt and as follows:\033[0m\n" > Configuration_Result.txt
+echo "+------------------+------------------+------------------+------------------+------------------+------------------+
+$(printf "|%-18s" 'iDrac Hostname')$(printf "|%-18s" 'iDrac IP')$(printf "|%-18s" 'Serial Number')$(printf "|%-18s" 'vmware account')$(printf "|%-18s" 'PSU Balance')$(printf "|%-18s|" 'Outcome')" >> Configuration_Result.txt
 ;;
 
 	DNSFailed)
-echo "+------------------+------------------+------------------+------------------+------------------+
-$(printf "|%-18s" $HostnameiDracLine)$(printf "|%-29s" $iDracIP)$(printf "|%-18s" $SerialNumber)$(printf "|%-29s" $iDracUserAccountVerify)$(printf "|%-18s" $PSUBalance)"
+echo "+------------------+------------------+------------------+------------------+------------------+------------------+
+$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalance")$(printf "|\033[1;31m%-18s\033[0m|" 'Failed')" >> Configuration_Result.txt
 ;;
 
 	PingFailed)
-echo "+------------------+------------------+------------------+------------------+------------------+
-$(printf "|%-18s" $HostnameiDracLine)$(printf "|%-30s" $iDracIP)$(printf "|%-18s" $SerialNumber)$(printf "|%-18s" $iDracUserAccountVerify)$(printf "|%-18s" $PSUBalance)"
+echo "+------------------+------------------+------------------+------------------+------------------+------------------+
+$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalance")$(printf "|\033[1;31m%-18s\033[0m|" 'Failed')" >> Configuration_Result.txt
 ;;
 
 	Success)
-echo "+------------------+------------------+------------------+------------------+------------------+
-$(printf "|%-18s" $HostnameiDracLine)$(printf "|%-18s" $iDracIP)$(printf "|%-18s" $SerialNumber)$(printf "|%-29s" $iDracUserAccountVerify)$(printf "|%-18s" $PSUBalance)"
+echo "+------------------+------------------+------------------+------------------+------------------+------------------+
+$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalance")$(printf "|\033[1;32m%-18s\033[0m|" 'Completed')" >> Configuration_Result.txt
 ;;
 
 	Tail)
-echo "+------------------+------------------+------------------+------------------+------------------+"
+echo "+------------------+------------------+------------------+------------------+------------------+------------------+" >> Configuration_Result.txt
 ;;
 
 esac

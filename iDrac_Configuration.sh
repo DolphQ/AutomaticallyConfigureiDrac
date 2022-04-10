@@ -8,7 +8,9 @@
 # 3. Get Serial Number and Mac address from iDrac
 
 source ./Configuration_InputOutput.sh
+source ./PackageCheck.sh
 
+PackageVerify sshpass
 
 function Configuration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
@@ -115,7 +117,6 @@ iDrac_racadm
 		PSUBalanceInfo='All Failed'
 	fi
 }
-#iDracHostname='sha1-hs1-r2215-ilo.eng.vmware.com'
-#HostnameDNSTest
-#echo $iDracIPInfo
+
+
 Configuration

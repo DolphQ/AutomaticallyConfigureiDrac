@@ -8,4 +8,3 @@ function PackageVerify(){
 		echo "Installed Package $1 "
 	fi
 }
-PackageVerify

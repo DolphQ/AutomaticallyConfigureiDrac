@@ -3,7 +3,6 @@
 # Input and Output for configuration script for dell
 
 # Create 2 temporary file for the script to use
-ConfigurationResult=$(mktemp)
 
 function GetUsernamePassword(){
 # Get username and password from user entering
@@ -56,31 +55,31 @@ case $1 in
 echo 'Configuration for iDrac is in progress.......
 '
 printf "
-\033[1;33mThe configuration result as following:\033[0m\n" > $ConfigurationResult
+\033[1;33mThe configuration result as following:\033[0m\n" > ConfigurationResult.txt
 echo "+------------------+------------------+------------------+------------------+------------------+------------------+
-$(printf "|%-18s" 'iDrac Hostname')$(printf "|%-18s" 'iDrac IP')$(printf "|%-18s" 'Serial Number')$(printf "|%-18s" 'New account')$(printf "|%-18s" 'PSU Balance')$(printf "|%-18s|" 'OutcomInfo')" >> $ConfigurationResult
+$(printf "|%-18s" 'iDrac Hostname')$(printf "|%-18s" 'iDrac IP')$(printf "|%-18s" 'Serial Number')$(printf "|%-18s" 'New account')$(printf "|%-18s" 'PSU Balance')$(printf "|%-18s|" 'OutcomInfo')" >> ConfigurationResult.txt
 ;;
 
 	DNSFailed)
 echo "+------------------+------------------+------------------+------------------+------------------+------------------+
-$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|\033[1;31m%-18s\033[0m|" 'Failed')" >> $ConfigurationResult
+$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|\033[1;31m%-18s\033[0m|" 'Failed')" >> ConfigurationResult.txt
 ClearInfo
 ;;
 
 	PingFailed)
 echo "+------------------+------------------+------------------+------------------+------------------+------------------+
-$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|\033[1;31m%-18s\033[0m|" 'Failed')" >> $ConfigurationResult
+$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|\033[1;31m%-18s\033[0m|" 'Failed')" >> ConfigurationResult.txt
 ClearInfo
 ;;
 
 	Success)
 echo "+------------------+------------------+------------------+------------------+------------------+------------------+
-$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|\033[1;32m%-18s\033[0m|" 'Completed')" >> $ConfigurationResult
+$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-18s" "$iDracIPInfo")$(printf "|%-18s" "$SerialNumberInfo")$(printf "|%-18s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|\033[1;32m%-18s\033[0m|" 'Completed')" >> ConfigurationResult.txt
 ClearInfo
 ;;
 
 	Tail)
-echo "+------------------+------------------+------------------+------------------+------------------+------------------+" >> $ConfigurationResult
+echo "+------------------+------------------+------------------+------------------+------------------+------------------+" >> ConfigurationResult.txt
 ;;
 
 esac

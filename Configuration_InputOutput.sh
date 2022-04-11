@@ -31,7 +31,7 @@ function Progress(){
         do
                 let index=i%4
                 printf "\033[1;35mConfigurating\033[0m[%-100s] %d %c\r" "$Strip" "$Number" "${Trun[$index]}"
-                sleep 0.25
+                sleep 0.38
                 let Number=Number+1
                 Strip+="#"
         done

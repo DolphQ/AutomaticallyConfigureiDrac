@@ -49,6 +49,7 @@ function Configuration(){
 	wait
 	Output Tail
 	cat ConfigurationResult.txt
+	rm ConfigurationResult.txt
 	exit
 }
 
@@ -137,3 +138,4 @@ iDrac_racadm
 
 
 Configuration
+

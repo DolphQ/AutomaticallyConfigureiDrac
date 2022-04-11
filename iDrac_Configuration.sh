@@ -83,9 +83,7 @@ function ConfigurationiDracDell(){
 # Creat a iDrac user and set user's privilege, set Redundancy and Hotspare for Dell 
 #The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".
 	DNSiDracName=$(echo $iDracHostname | awk -F"." '{print $1}')
-	echo $DNSiDracName
 	ServerArea=$(echo $iDracHostname | awk -F"-" '{print $1}')
-	echo $ServerArea
 	if [[ $ServerArea == 'pek2' ]];then
 		NTPServer1=10.117.0.1
 		NTPServer2=10.110.160.1

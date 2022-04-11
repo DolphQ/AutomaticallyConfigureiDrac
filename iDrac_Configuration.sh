@@ -9,7 +9,7 @@
 
 # Add source from other scripts
 source ./Configuration_InputOutput.sh
-source ./PackageCheck.sh
+source ./Package_Verify.sh
 
 PackageVerify sshpass
 
@@ -48,7 +48,7 @@ function Configuration(){
 	done
 	wait
 	Output Tail
-	cat $ConfigurationResult
+	cat ConfigurationResult.txt
 	exit
 }
 

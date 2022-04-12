@@ -12,7 +12,7 @@ source ./Configuration_InputOutput.sh
 source ./Package_Verify.sh
 source ./Configuration_Command.sh
 
-PackageVerify sshpass
+
 
 function Configuration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
@@ -20,25 +20,24 @@ function Configuration(){
 # $ControlNumber for control number of processes
 	ControlNumber=1
 
-	Output Title
-	Progress&
-	for iDracHostnameInfo in $(sed -n '10,999p' Hostname_iDrac_List);
+	OutputType Title
+	for iDracHostnameInfo in $(sed -n '10,999p' Hostname_List);
 	do
 		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
 		{
 			HostnameDNSTest
 			if [[ $HostnameDNSResult != 'Yes' ]];then
-				Output DNSFailed
+				OutputType DNSFailed
 				continue
 			fi
 			HostnamePingTest
 			if [[ $HostnamePingResult == 'No' ]];then
-				Output PingFailed
+				OutputType PingFailed
 				continue
 			fi
 			ConfigurationiDracDell
 			GetInfoDell
-			Output Success
+			OutputType Success
 		}&
 
 # The maximum of processes is 10
@@ -46,12 +45,10 @@ function Configuration(){
 			wait
 			ControlNumber=1
 		done
-	done
+	done&
 	wait
-	Output Tail
-	cat ConfigurationResult.txt
-	rm ConfigurationResult.txt
-	exit
+	exit 1
+
 }
 
 function HostnameDNSTest(){
@@ -81,32 +78,8 @@ function HostnamePingTest(){
 	fi
 }
 
-function GetInfoDell(){
-# Get server's info from Dell iDrac
-# Create a temporary file for the script to use
-	iDracSysInfomation=$(mktemp)
-
-	sudo sshpass -p VMware1! ssh -o StrictHostKeyChecking=no vmware@$iDracHostname > $iDracSysInfomation 2>&1 <<iDrac_racadm
-	racadm getsysinfo -s4
-	racadm get System.Power
-	racadm get idrac.users.3
-iDrac_racadm
-	iDracIPInfo=$(cat $iDracSysInfomation | grep "Current\ IP\ Address" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
-	SerialNumberInfo=$(cat $iDracSysInfomation | grep "Service\ Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
-	iDracUserInfo=$(cat $iDracSysInfomation | grep UserName | awk -F= '{print $2}')
-	HotSpareInfo=$(cat $iDracSysInfomation | grep HotSpare.Enable | awk -F= '{print $2}')
-	RedundancyPolicy=$(cat $iDracSysInfomation | grep RedundancyPolicy | awk -F= '{print $2}')
-	if [[ $HotSpareInfo == 'Enabled' && $RedundancyPolicy == 'Not Redundant' ]];then
-		PSUBalanceInfo='Successfully'
-	elif [[ $HotSpareInfo == 'Enabled' && $RedundancyPolicy != 'Not Redundant' ]];then
-		PSUBalanceInfo='Redundancy Failed'
-	elif [[ $HotSpareInfo != 'Enabled' && $RedundancyPolicy == 'Not Redundant' ]];then
-        	PSUBalanceInfo='HotSpare Failed'
-	else
-		PSUBalanceInfo='All Failed'
-	fi
-}
-
+PackageVerify sshpass
 
 Configuration
-
+Progress
+cat ConfigurationResult.txt

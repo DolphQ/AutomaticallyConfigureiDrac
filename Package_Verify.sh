@@ -9,4 +9,5 @@ function PackageVerify(){
 		sudo apt-get install $1 > /dev/null
 		echo "Installed Package $1 "
 	fi
+	echo 'Package Verify is done'
 }

@@ -7,19 +7,18 @@
 function Progress(){
         Number=0
         Strip=""
-        Trun=("\\" "|" "/" "-")
         while [ $Number -le 99999 ]
         do
                 let index=i%4
-		printf "\033[1;35mConfigurating\033[0m[%-s \r" "$Strip"
-                sleep 0.5
+		printf "\033[1;35mConfiguring\033[0m%-6s \r" "$Strip"
+                sleep 0.3
                 let Number=Number+1
-                Strip+="#"
-        done
-	
-	PID=$!
-	./$@
-	kill $PID
+                Strip+="."
+		if [[ $Strip == '......' ]];then
+			Strip=""
+		fi
+        done&
+
 }
 
 function GetUsernamePassword(){
@@ -53,14 +52,13 @@ function ClearInfo(){
 
 function Output(){
 
-echo "$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-16s" "$iDracIPInfo")$(printf "|%-15s" "$SerialNumberInfo")$(printf "|%-13s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|%-12s" "$OutcomeInfo")
+	echo "$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-16s" "$iDracIPInfo")$(printf "|%-15s" "$SerialNumberInfo")$(printf "|%-13s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|%-12s" "$OutcomeInfo")
 $(printf "|%-18s" "------------------")$(printf "|%-16s" "----------------")$(printf "|%-15s" "---------------")$(printf "|%-13s" "-------------")$(printf "|%-18s" "------------------")$(printf "|%-12s" "------------")" >> ConfigurationResult.txt
 
 }
 
 function OutputType(){
 # Output
-
 case $1 in
 
 	Title) 
@@ -74,18 +72,13 @@ case $1 in
 		Output
 		;;
 
-	DNSFailed)
-		OutcomeInfo="$(printf "\033[1;31mFailed\033[0m")"
-		Output
-		;;
-
-	PingFailed)
-		OutcomeInfo="$(printf "\033[1;31mFailed\033[0m")"
-		Output
-		;;
-
 	Success)
 		OutcomeInfo="$(printf "\033[1;32mCompleted\033[0m")"
+		Output
+		;;
+
+	*)
+		OutcomeInfo="$(printf "\033[1;31mFailed\033[0m")"
 		Output
 		;;
 	

@@ -10,17 +10,20 @@
 # Add source from other scripts
 source ./Configuration_InputOutput.sh
 source ./Package_Verify.sh
-source ./Configuration_Command.sh
+source ./Configuration_iDracDell.sh
 
 
 
 function Configuration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
 	
-# $ControlNumber for control number of processes
-	ControlNumber=1
+	ControlNumber=1		#For Control the number processes
+
+	PackageVerify sshpass
+	echo "$ProgressPID"
 
 	OutputType Title
+
 	for iDracHostnameInfo in $(sed -n '10,999p' Hostname_List);
 	do
 		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
@@ -45,10 +48,12 @@ function Configuration(){
 			wait
 			ControlNumber=1
 		done
-	done&
-	wait
-	exit 1
+	done
+	wait	
 
+	cat ConfigurationResult.txt
+	rm ConfigurationResult.txt
+	exit
 }
 
 function HostnameDNSTest(){
@@ -78,8 +83,4 @@ function HostnamePingTest(){
 	fi
 }
 
-PackageVerify sshpass
-
 Configuration
-Progress
-cat ConfigurationResult.txt

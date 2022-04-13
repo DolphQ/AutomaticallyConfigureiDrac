@@ -14,13 +14,12 @@ source ./Configuration_iDracDell.sh
 
 
 
-function Configuration(){
+function MainConfiguration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
 	
 	ControlNumber=1		#For Control the number processes
 
 	PackageVerify sshpass
-	echo "$ProgressPID"
 
 	OutputType Title
 
@@ -33,14 +32,18 @@ function Configuration(){
 				OutputType DNSFailed
 				continue
 			fi
-			HostnamePingTest
+				HostnamePingTest
 			if [[ $HostnamePingResult == 'No' ]];then
 				OutputType PingFailed
 				continue
-			fi
+			fi	
+			Progress&
+			ProgressPID=$!
+
 			ConfigurationiDracDell
 			GetInfoDell
 			OutputType Success
+			kill -9 $ProgressPID
 		}&
 
 # The maximum of processes is 10
@@ -83,4 +86,4 @@ function HostnamePingTest(){
 	fi
 }
 
-Configuration
+MainConfiguration

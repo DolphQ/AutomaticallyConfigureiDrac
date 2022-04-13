@@ -7,17 +7,17 @@
 function Progress(){
         Number=0
         Strip=""
-        while [ $Number -le 99999 ]
+	printf "\n"
+	while true
         do
-                let index=i%4
-		printf "\033[1;35mConfiguring\033[0m%-6s \r" "$Strip"
-                sleep 0.3
+		printf "\033[1;35mConfiguring for $iDracHostnameInfo $Strip\033[0m%-6s \r"
+                sleep 0.5
                 let Number=Number+1
                 Strip+="."
 		if [[ $Strip == '......' ]];then
 			Strip=""
 		fi
-        done&
+        done
 
 }
 
@@ -40,20 +40,10 @@ function GetUsernamePassword(){
 	done      	
 }
 
-function ClearInfo(){
-# Clear the contents of Output Info	
-	iDracHostnameInfo=''
-	iDracIPInfo=''
-	SerialNumberInfo=''
-	iDracUserInfo=''
-	PSUBalanceInfo=''
-	OutcomInfo=''
-}
-
 function Output(){
 
-	echo "$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-16s" "$iDracIPInfo")$(printf "|%-15s" "$SerialNumberInfo")$(printf "|%-13s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|%-12s" "$OutcomeInfo")
-$(printf "|%-18s" "------------------")$(printf "|%-16s" "----------------")$(printf "|%-15s" "---------------")$(printf "|%-13s" "-------------")$(printf "|%-18s" "------------------")$(printf "|%-12s" "------------")" >> ConfigurationResult.txt
+	echo "$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-16s" "$iDracIPInfo")$(printf "|%-15s" "$SerialNumberInfo")$(printf "|%-13s" "$iDracUserInfo")$(printf "|%-18s" "$PSUBalanceInfo")$(printf "|%-18s" "$NTPInfo")$(printf "|%-12s" "$DNSRacNameInfo")$(printf "|%-23s|" "$OutcomeInfo")
+$(printf "|%-18s" "------------------")$(printf "|%-16s" "----------------")$(printf "|%-15s" "---------------")$(printf "|%-13s" "-------------")$(printf "|%-18s" "------------------")$(printf "|%-18s" "------------------")$(printf "|%-12s" "------------")$(printf "|%-12s|" "------------")" >> ConfigurationResult.txt
 
 }
 
@@ -62,13 +52,16 @@ function OutputType(){
 case $1 in
 
 	Title) 
-		printf "\033[1;33mThe configuration result as following:\033[0m\n" > ConfigurationResult.txt
+		echo "$(printf "\033[1;33mThe configuration result as following:\033[0m\n")
+$(printf "|%-18s" "------------------")$(printf "|%-16s" "----------------")$(printf "|%-15s" "---------------")$(printf "|%-13s" "-------------")$(printf "|%-18s" "------------------")$(printf "|%-18s" "------------------")$(printf "|%-12s" "------------")$(printf "|%-12s|" "------------")" > ConfigurationResult.txt
 		iDracHostnameInfo='iDrac Hostname'
 		iDracIPInfo='iDrac IP'
 		SerialNumberInfo='Serial Number'
 		iDracUserInfo='New Account'
 		PSUBalanceInfo='PSU Balance'
-		OutcomeInfo='Outcome'
+		DNSRacNameInfo='DNSRacName'
+		NTPInfo='NTP Configuration'
+		OutcomeInfo="$(printf "\033[1;35mOutcome\033[0m")"
 		Output
 		;;
 
@@ -84,6 +77,13 @@ case $1 in
 	
 esac
 
-ClearInfo
+	iDracHostnameInfo=''
+	iDracIPInfo=''
+	SerialNumberInfo=''
+	iDracUserInfo=''
+	PSUBalanceInfo=''
+	OutcomInfo=''
+	DNSRacNameInfo=''
+	NTPInfo=''
 }
 

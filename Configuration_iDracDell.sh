@@ -42,12 +42,22 @@ function GetInfoDell(){
 	racadm getsysinfo -s4
 	racadm get System.Power
 	racadm get idrac.users.3
+	racadm get iDrac.NTPConfigGroup
+	racadm get iDRAC.Nic.DNSRacName
+	racadm get iDRAC.Time.Timezone
 iDrac_racadm
 	iDracIPInfo=$(cat $iDracSysInfomation | grep "Current\ IP\ Address" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
 	SerialNumberInfo=$(cat $iDracSysInfomation | grep "Service\ Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
 	iDracUserInfo=$(cat $iDracSysInfomation | grep UserName | awk -F= '{print $2}')
 	HotSpareInfo=$(cat $iDracSysInfomation | grep HotSpare.Enable | awk -F= '{print $2}')
 	RedundancyPolicy=$(cat $iDracSysInfomation | grep RedundancyPolicy | awk -F= '{print $2}')
+	NTPEnableInfo=$(cat $iDracSysInfomation | grep NTPEnbale | awk -F= '{print $2}')
+	NTPServer1Info=$(cat $iDracSysInfomation | grep -h ^NTP1= | awk -F= '{print $2}')
+	DNSRacName=$(cat $iDracSysInfomation | grep DNSRacName | awk -F= '{print $2}')
+	DNSTimeZone=$(cat $iDracSysInfomation | grep Timezone | awk -F= '{print $2}')
+	
+	echo $NTPEnableInfo
+	# Verify Hostspare and Redundancy configuration
 	if [[ $HotSpareInfo == 'Enabled' && $RedundancyPolicy == 'Not Redundant' ]];then
 		PSUBalanceInfo='Successfully'
 	elif [[ $HotSpareInfo == 'Enabled' && $RedundancyPolicy != 'Not Redundant' ]];then
@@ -57,4 +67,15 @@ iDrac_racadm
 	else
 		PSUBalanceInfo='All Failed'
 	fi
+"	
+	# Verify DNSRacName
+	if [[ $DNSRacName == "$iDracHostnameInfo-ilo" ]];then
+		DNSRacNameInfo='Successfully'
+	fi
+
+	# Verify NTP configuration
+	if [[ $NTPEnableInfo == 'Enabled' && $DNSTimeZoneInfo == 'Asia/Shanghai' ]];then
+		NTPInfo='Successfully'
+	fi
+"	
 }

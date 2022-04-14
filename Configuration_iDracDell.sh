@@ -32,6 +32,7 @@ racadm set iDRAC.NTPConfigGroup.NTPEnable 1
 racadm set iDRAC.NTPConfigGroup.NTP1 $NTPServer1
 racadm set iDRAC.NTPConfigGroup.NTP2 $NTPServer2
 racadm set iDRAC.Nic.DNSRacName $DNSRacName
+racadm set iDRAC.Nic.DNSDomainName eng.vmware.com
 iDracConfiguratoin
 }
 

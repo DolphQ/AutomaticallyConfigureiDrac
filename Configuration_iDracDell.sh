@@ -16,7 +16,7 @@ function ConfigurationiDracDell(){
 		NTPServer1=10.117.0.1
 		NTPServer2=10.111.0.1
 	fi
-	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > iDracCommandInfo 2>&1 << iDracConfiguratoin
+	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > /dev/null 2>&1 << iDracConfiguratoin
 racadm set idrac.users.3.username vmware
 racadm set idrac.users.3.password VMware1!
 racadm set idrac.users.3.enable 1

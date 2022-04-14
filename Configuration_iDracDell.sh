@@ -4,6 +4,7 @@
 function ConfigurationiDracDell(){
 # Creat a iDrac user and set user's privilege, set Redundancy and Hotspare for Dell 
 #The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".
+
 	DNSRacName=$(echo $iDracHostname | awk -F"." '{print $1}')
 	ServerArea=$(echo $iDracHostname | awk -F"-" '{print $1}')
 	if [[ $ServerArea == 'pek2' ]];then
@@ -37,8 +38,8 @@ iDracConfiguratoin
 
 function GetInfoDell(){
 # Get server's info from Dell iDrac
-# Create a temporary file for the script to use
-	iDracSysInfomation=$(mktemp)
+
+	iDracSysInfomation=$(mktemp) 	# Create a temporary file for the script to use
 
 	sudo sshpass -p VMware1! ssh -o StrictHostKeyChecking=no vmware@$iDracHostname > $iDracSysInfomation 2>&1 <<iDracGetInfo
 racadm getsysinfo -s4

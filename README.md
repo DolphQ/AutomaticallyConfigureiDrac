@@ -3,7 +3,8 @@
 For iDrac/ILO Automation Configuration for Dell
 
 This script can be:
-
-1. Creat a user for iDrac/iLO for Dell
-2. Get Serial Number from iDrac
-3. Set PSU Redundancy and Hot Spare
+ 1. Add user for iDrac/iLO and set privilege
+ 2. Set PSU Redundancy and Hot Spare
+ 3. Get Serial Number and Mac address from iDrac
+ 4. Set Time Zone and NTP servers
+ 5. Set DNS iDrac Name and Static DNS Domain Name

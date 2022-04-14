@@ -5,6 +5,7 @@
 # Create 2 temporary file for the script to use
 
 function Progress(){
+# Progress bar 
         Number=0
         Strip=""
 	printf "\n"

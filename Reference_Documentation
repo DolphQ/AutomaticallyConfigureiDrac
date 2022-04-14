@@ -1,5 +1,7 @@
 #/bin/bash
 #for reference
+#
+
 << TypeColor
 none         = "\033[0m"
 black        = "\033[0;30m"

@@ -33,7 +33,7 @@ function MainConfiguration(){
 				continue
 			fi
 				HostnamePingTest
-			if [[ $HostnamePingResult == 'No' ]];then
+			if [[ $HostnamePingResult != 'Yes' ]];then
 				OutputType PingFailed
 				continue
 			fi	

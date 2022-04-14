@@ -10,7 +10,7 @@ function Progress(){
 	printf "\n"
 	while true
         do
-		printf "\033[1;35mConfiguring for $iDracHostnameInfo $Strip\033[0m%-6s \r"
+		printf "\033[1;35mConfiguring for $iDracHostnameInfo\033[0m%-6s \r" "$Strip"
                 sleep 0.5
                 let Number=Number+1
                 Strip+="."
@@ -61,7 +61,7 @@ $(printf "|%-18s" "------------------")$(printf "|%-16s" "----------------")$(pr
 		PSUBalanceInfo='PSU Balance'
 		DNSRacNameInfo='DNSRacName'
 		NTPInfo='NTP Configuration'
-		OutcomeInfo="$(printf "\033[1;35mOutcome\033[0m")"
+		OutcomeInfo="$(printf "\033[0;37mOutcome\033[0m")"
 		Output
 		;;
 

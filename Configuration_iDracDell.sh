@@ -16,11 +16,14 @@ function ConfigurationiDracDell(){
 		NTPServer1=10.117.0.1
 		NTPServer2=10.111.0.1
 	fi
-	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > /dev/null 2>&1 << iDracConfiguratoin
+	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > iDracCommandInfo 2>&1 << iDracConfiguratoin
 racadm set idrac.users.3.username vmware
 racadm set idrac.users.3.password VMware1!
 racadm set idrac.users.3.enable 1
 racadm set idrac.users.3.privilege 0x1ff
+racadm set idrac.users.3.IpmiLanPrivilege 4
+racadm set idrac.users.3.IpmiSerialPrivilege 4
+racadm set idrac.users.3.SolEnable 1
 racadm set System.ServerPwr.PSRedPolicy 0
 racadm set System.Power.Hotspare.Enable 1
 racadm set iDRAC.Time.Timezone Asia/Shanghai
@@ -47,10 +50,10 @@ racadm get iDRAC.Time.Timezone
 iDracGetInfo
 	iDracIPInfo=$(cat $iDracSysInfomation | grep "Current\ IP\ Address" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
 	SerialNumberInfo=$(cat $iDracSysInfomation | grep "Service \Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
-	iDracUserInfo=$(cat $iDracSysInfomation | grep -h ^UserName= | awk -F= '{print $2}')
+	iDracUserInfo=$(cat $iDracSysInfomation | grep UserName | awk -F= '{print $2}')
 	HotSpareInfo=$(cat $iDracSysInfomation | grep -h ^HotSpare.Enable= | awk -F= '{print $2}')
 	RedundancyPolicy=$(cat $iDracSysInfomation | grep -h ^RedundancyPolicy= | awk -F= '{print $2}')
-	NTPEnable=$(cat $iDracSysInfomation | grep NTPEnable | awk -F= '{print $2}')
+	NTPEnable=$(cat $iDracSysInfomation | grep -h ^NTPEnable= | awk -F= '{print $2}')
 	NTPServer1=$(cat $iDracSysInfomation | grep -h ^NTP1= | awk -F= '{print $2}')
 	DNSRacName=$(cat $iDracSysInfomation | grep -h ^DNSRacName= | awk -F= '{print $2}')
 	DNSTimeZone=$(cat $iDracSysInfomation | grep -h ^Timezone= | awk -F= '{print $2}')

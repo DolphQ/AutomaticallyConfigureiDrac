@@ -1,11 +1,16 @@
 #!/bin/bash
 # Configuration command and get information for Dell
 
+
 function ConfigurationiDracDell(){
 # Creat a iDrac user and set user's privilege, set Redundancy and Hotspare for Dell 
 #The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".
 
-	DNSRacName=$(echo $iDracHostname | awk -F"." '{print $1}')
+	iDracSysInfomation=$(mktemp)	# Create a temporary file
+
+	DNSRacName=$(echo $iDracHostname | awk -F"." '{print $1}') # Get DNS Rac name
+
+# Verify Server's location to get best NTP server IP
 	ServerArea=$(echo $iDracHostname | awk -F"-" '{print $1}')
 	if [[ $ServerArea == 'pek2' ]];then
 		NTPServer1=10.117.0.1
@@ -17,7 +22,9 @@ function ConfigurationiDracDell(){
 		NTPServer1=10.117.0.1
 		NTPServer2=10.111.0.1
 	fi
-	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > iDracSysInfomation 2>&1 << iDracConfiguratoin
+
+# The following command is for setting that will be executed in the iDrac
+iDracRacadmDellSet="
 racadm set idrac.users.3.username vmware
 racadm set idrac.users.3.password VMware1!
 racadm set idrac.users.3.enable 1
@@ -33,59 +40,42 @@ racadm set iDRAC.NTPConfigGroup.NTP1 $NTPServer1
 racadm set iDRAC.NTPConfigGroup.NTP2 $NTPServer2
 racadm set iDRAC.Nic.DNSRacName $DNSRacName
 racadm set iDRAC.Nic.DNSDomainName eng.vmware.com
-iDracConfiguratoin
-}
+"
 
-function ConfigurationVerify(){
-	return
-}
+# The following command is for getting Serial Number from the iDrac
+iDracRacadmDellGet="
+racadm getsysinfo -s
+"
 
-function GetInfoDell(){
-# Get server's info from Dell iDrac
-
-	iDracSysInfomation=$(mktemp) 	# Create a temporary file for the script to use
-
-	sudo sshpass -p VMware1! ssh -o StrictHostKeyChecking=no vmware@$iDracHostname > $iDracSysInfomation 2>&1 <<iDracGetInfo
-racadm getsysinfo -s4
-racadm get System.Power
-racadm get idrac.users.3
-racadm get iDrac.NTPConfigGroup
-racadm get iDRAC.Nic.DNSRacName
-racadm get iDRAC.Time.Timezone
-iDracGetInfo
-	iDracIPInfo=$(cat $iDracSysInfomation | grep "Current\ IP\ Address" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
-	SerialNumberInfo=$(cat $iDracSysInfomation | grep "Service \Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
-	iDracUserInfo=$(cat $iDracSysInfomation | grep UserName | awk -F= '{print $2}')
-	HotSpareInfo=$(cat $iDracSysInfomation | grep -h ^HotSpare.Enable= | awk -F= '{print $2}')
-	RedundancyPolicy=$(cat $iDracSysInfomation | grep -h ^RedundancyPolicy= | awk -F= '{print $2}')
-	NTPEnable=$(cat $iDracSysInfomation | grep -h ^NTPEnable= | awk -F= '{print $2}')
-	NTPServer1=$(cat $iDracSysInfomation | grep -h ^NTP1= | awk -F= '{print $2}')
-	DNSRacName=$(cat $iDracSysInfomation | grep -h ^DNSRacName= | awk -F= '{print $2}')
-	DNSTimeZone=$(cat $iDracSysInfomation | grep -h ^Timezone= | awk -F= '{print $2}')
-	
-	# Verify Hostspare and Redundancy configuration
-	if [[ $HotSpareInfo == 'Enabled' && $RedundancyPolicy == 'Not Redundant' ]];then
-		PSUBalanceInfo='Successfully'
-	elif [[ $HotSpareInfo == 'Enabled' && $RedundancyPolicy != 'Not Redundant' ]];then
-		PSUBalanceInfo='Redundancy Failed'
-	elif [[ $HotSpareInfo != 'Enabled' && $RedundancyPolicy == 'Not Redundant' ]];then
-        	PSUBalanceInfo='HotSpare Failed'
-	else
-		PSUBalanceInfo='All Failed'
-	fi
-
-	# Verify NTP configuration
-	if [[ $NTPEnable == 'Enabled' && $DNSTimeZone == 'Asia/Shanghai' ]];then
-		NTPInfo='Successfully'
-	else
-		NTPInfo='Failed'
-	fi
-
-	# Verify DNSRacName
-	if [[ $DNSRacName == "$iDracHostnameInfo-ilo" ]];then
-		DNSRacNameInfo='Successfully'
-	else
-		DNSRacNmaeInfo='Failed'
-	fi
+# Execute command in the iDrac through ssh
+	iDracRacadm=$iDracRacadmDellSet
+	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > $iDracSysInfomation 2>&1 << Command
+$iDracRacadmDellSet
+$iDracRacadmDellGet
+Command
 
 }
+
+function ResultVerify(){
+# Verify the result of execute command
+	DetailsInfo=''
+	ResultFailureInfo=''
+	for RacadmCommand in $(echo "$iDracRacadmDellSet" | awk '{print $3}')
+	do
+		RacadmResult=$(cat $iDracSysInfomation | grep -A 2 $RacadmCommand | grep 'Object value modified successfully')
+		if [[ $RacadmResult != 'Object value modified successfully' ]];then
+			ResultFailureInfo="$ResultFailureInfo$RacadmCommand; "
+		fi
+
+		if [[ $ResultFailureInfo != '' ]];then
+			DetailInfo=$ResultFailureInfo
+			ResultInfo="$(printf "\033[1;33m%-10s\033[0m" "Done")"
+		else
+			DetailInfo="Done successfully"
+			ResultInfo="$(printf "\033[1;32m%-10s\033[0m" "Done")"
+		fi
+		SerialNumberInfo=$(cat $iDracSysInfomation | grep "Service \Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
+	done
+
+}
+

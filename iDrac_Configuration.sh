@@ -15,46 +15,46 @@ source ./Package_Verify.sh
 source ./Configuration_iDracDell.sh
 
 
-
 function MainConfiguration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
 	
-	ControlNumber=1		#For Control the number processes
+	ControlNumber=1		# For Control the number processes
 
-	PackageVerify sshpass
+	PackageVerify sshpass	# Verify sshpass package
 
-	OutputType Title
+	OutputType Title	# Output the header of table
+
+	Progress&
 
 	for iDracHostnameInfo in $(sed -n '10,999p' Hostname_List);
 	do
 		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
 		{
-			HostnameDNSTest
+			HostnameDNSTest		# Verify Hostname
 			if [[ $HostnameDNSResult != 'Yes' ]];then
-				OutputType DNSFailed
+				OutputType Failure
 				continue
 			fi
-				HostnamePingTest
+			HostnamePingTest	# Verify Pingable
 			if [[ $HostnamePingResult != 'Yes' ]];then
-				OutputType PingFailed
+				OutputType Failure
 				continue
 			fi	
-			Progress&
-			ProgressPID=$!
 
-			ConfigurationiDracDell
-			GetInfoDell
-			OutputType Success
-			kill -9 $ProgressPID
+			ConfigurationiDracDell	# Configring for iDrac
+			ResultVerify		# Verify result
+			OutputType Done		# Output after done
 		}&
 
 # The maximum of processes is 10
+		ControlNumber=$[$ControlNumber+1]
 		while [ $ControlNumber -eq 10 ];do
 			wait
 			ControlNumber=1
 		done
+
 	done
-	wait	
+	wait
 
 	cat ConfigurationResult.txt
 	rm ConfigurationResult.txt
@@ -68,23 +68,23 @@ function HostnameDNSTest(){
 	HostnameDNSTest_3=$(host $iDracHostname | grep $iDracHostname | awk '{print $4}')
 	if [[ $HostnameDNSTest_1 == 'has' && $HostnameDNSTest_2 == 'address' ]];then
 		HostnameDNSResult='Yes'
+		iDracIPInfo=$HostnameDNSTest_3
 	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
 		HostnameDNSResult='No'
-		iDracIPInfo='DNS failed'
+		DetailInfo='DNS verification is failed'
 	else
-		HostnameDNSResult='None'
-		iDracIPInfo='DNS failed'
+		DetailInfo='DNS verification is failed'
 	fi	
 }
 
 function HostnamePingTest(){
 # To test pingable for iDrac Hostname
-	HostnamePingTest=$(ping -w 1 $iDracHostname | grep loss | awk '{print $6}')
+	HostnamePingTest=$(ping -w 1 $iDracIPInfo | grep loss | awk '{print $6}')
 	if [[ $HostnamePingTest == '0%'  ]];then
 		HostnamePingResult='Yes'
 	else
 		HostnamePingResult='No'
-		iDracIPInfo='Ping failed'
+		DetailInfo='Pingable verification is failed'
 	fi
 }
 

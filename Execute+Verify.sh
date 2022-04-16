@@ -6,7 +6,7 @@ function ConfigurationiDracDell(){
 # Creat a iDrac user and set user's privilege, set Redundancy and Hotspare for Dell 
 #The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".
 
-	iDracSysInfomation=$(mktemp)	# Create a temporary file
+	TempSysInfo=$(mktemp)	# Create a temporary file
 
 	DNSRacName=$(echo $iDracHostname | awk -F"." '{print $1}') # Get DNS Rac name
 
@@ -40,6 +40,7 @@ racadm set iDRAC.NTPConfigGroup.NTP1 $NTPServer1
 racadm set iDRAC.NTPConfigGroup.NTP2 $NTPServer2
 racadm set iDRAC.Nic.DNSRacName $DNSRacName
 racadm set iDRAC.Nic.DNSDomainName eng.vmware.com
+racadm look aoligei
 "
 
 # The following command is for getting Serial Number from the iDrac
@@ -49,20 +50,31 @@ racadm getsysinfo -s
 
 # Execute command in the iDrac through ssh
 	iDracRacadm=$iDracRacadmDellSet
-	sudo sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > $iDracSysInfomation 2>&1 << Command
+	sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > $TempSysInfo 2>&1 << Command
 $iDracRacadmDellSet
 $iDracRacadmDellGet
 Command
-
+	SSHableVerify=$?
+	echo $SSHableVerify
 }
 
 function ResultVerify(){
 # Verify the result of execute command
+	
 	DetailsInfo=''
 	ResultFailureInfo=''
+
 	for RacadmCommand in $(echo "$iDracRacadmDellSet" | awk '{print $3}')
 	do
-		RacadmResult=$(cat $iDracSysInfomation | grep -A 2 $RacadmCommand | grep 'Object value modified successfully')
+		if [[ $SSHableVerify != '0' ]];then
+			DetailInfo='SSHable verification failed'
+			ResultInfo="$(printf "\033[1;31m%-10s\033[0m" "Failure")"
+			continue
+		else
+			ResultFailureInfo=''
+		fi
+		
+		RacadmResult=$(cat $TempSysInfo | grep -A 2 $RacadmCommand | grep 'Object value modified successfully')
 		if [[ $RacadmResult != 'Object value modified successfully' ]];then
 			ResultFailureInfo="$ResultFailureInfo$RacadmCommand; "
 		fi
@@ -74,7 +86,7 @@ function ResultVerify(){
 			DetailInfo="Done successfully"
 			ResultInfo="$(printf "\033[1;32m%-10s\033[0m" "Done")"
 		fi
-		SerialNumberInfo=$(cat $iDracSysInfomation | grep "Service \Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
+		SerialNumberInfo=$(cat $TempSysInfo | grep "Service \Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
 	done
 
 }

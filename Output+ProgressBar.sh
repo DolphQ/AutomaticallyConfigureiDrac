@@ -4,10 +4,9 @@
 
 # Create 2 temporary file for the script to use
 
-function Progress(){
+function ProgressBar(){
 # Progress bar 
         Strip=""
-	printf "\n"
 	while true
         do
 		printf "Configuration is in progress %-6s \r" "$Strip"
@@ -16,7 +15,7 @@ function Progress(){
 		if [[ $Strip == '......' ]];then
 			Strip=""
 		fi
-        done&
+        done
 
 }
 
@@ -68,7 +67,7 @@ case $1 in
 		;;
 
 	Failure)
-		ResultInfo="$(printf "\033[1;31m%-10s\033[0m" "Fail")"
+		ResultInfo="$(printf "\033[1;31m%-10s\033[0m" "Failure")"
 		Output String
 		Output Table
 		ClearInfo

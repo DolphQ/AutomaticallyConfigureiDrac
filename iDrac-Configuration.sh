@@ -24,9 +24,7 @@ function MainConfiguration(){
 
 	OutputType Title	# Output the header of table
 
-	Progress
-
-	for iDracHostnameInfo in $(sed -n '10,999p' Hostname_List);
+	for iDracHostnameInfo in $(sed -n '10,$p' Hostname_List);
 	do
 		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
 		{
@@ -70,9 +68,9 @@ function HostnameDNSTest(){
 		iDracIPInfo=$HostnameDNSTest_3
 	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
 		HostnameDNSResult='No'
-		DetailInfo='DNS verification is failed'
+		DetailInfo='DNS verification failed'
 	else
-		DetailInfo='DNS verification is failed'
+		DetailInfo='DNS verification failed'
 	fi	
 }
 
@@ -83,7 +81,7 @@ function HostnamePingTest(){
 		HostnamePingResult='Yes'
 	else
 		HostnamePingResult='No'
-		DetailInfo='Pingable verification is failed'
+		DetailInfo='Pingable verification failed'
 	fi
 }
 

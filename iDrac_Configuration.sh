@@ -9,7 +9,7 @@
 # 4. Set Time Zone and NTP servers
 # 5. Set DNS iDrac Name and Static DNS Domain Name
 
-# Add source from other scripts
+# Add source script from other files
 source ./Configuration_InputOutput.sh
 source ./Package_Verify.sh
 source ./Configuration_iDracDell.sh
@@ -24,7 +24,7 @@ function MainConfiguration(){
 
 	OutputType Title	# Output the header of table
 
-	Progress&
+	Progress
 
 	for iDracHostnameInfo in $(sed -n '10,999p' Hostname_List);
 	do
@@ -52,7 +52,6 @@ function MainConfiguration(){
 			wait
 			ControlNumber=1
 		done
-
 	done
 	wait
 

@@ -16,7 +16,7 @@ function Progress(){
 		if [[ $Strip == '......' ]];then
 			Strip=""
 		fi
-        done
+        done&
 
 }
 

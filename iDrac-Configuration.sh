@@ -10,9 +10,9 @@
 # 5. Set DNS iDrac Name and Static DNS Domain Name
 
 # Add source script from other files
-source ./Configuration_InputOutput.sh
-source ./Package_Verify.sh
-source ./Configuration_iDracDell.sh
+source ./Output+ProgressBar.sh
+source ./PackageVerify.sh
+source ./Execute+Verify.sh
 
 
 function MainConfiguration(){
@@ -24,7 +24,7 @@ function MainConfiguration(){
 
 	OutputType Title	# Output the header of table
 
-	for iDracHostnameInfo in $(sed -n '10,$p' Hostname_List);
+	for iDracHostnameInfo in $(sed -n '10,$p' Hostname-List);
 	do
 		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
 		{

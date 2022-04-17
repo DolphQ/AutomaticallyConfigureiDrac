@@ -4,7 +4,6 @@
 
 function ConfigurationiDracDell(){
 # Creat a iDrac user and set user's privilege, set Redundancy and Hotspare for Dell 
-#The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".
 
 	TempSysInfo=$(mktemp)	# Create a temporary file
 
@@ -23,10 +22,21 @@ function ConfigurationiDracDell(){
 		NTPServer2=10.111.0.1
 	fi
 
+# Get iDrac User and use default username if it's null
+# Get iDrac Password and use default password if it's null
+iDracUserGet=$(cat Hostname-List | grep $iDracHostnameInfo | awk '{print $2}')
+iDracPasswordGet=$(cat Hostname-List | grep $iDracHostnameInfo | awk '{print $3}')
+iDracPassword=${iDracPasswordGet:-'calvin'}
+iDracUser=${iDracUserGet:-'root'}
+
+NewAccount=$(cat Hostname-List | grep NewAccount | awk -F= '{print $2}')
+NewAccountPassword=$(cat Hostname-List | grep NewAccountPassword | awk -F= '{print $2}')
+
 # The following command is for setting that will be executed in the iDrac
+# The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".
 iDracRacadmDellSet="
-racadm set idrac.users.3.username vmware
-racadm set idrac.users.3.password VMware1!
+racadm set idrac.users.3.username $NewAccount
+racadm set idrac.users.3.password $NewAccountPassword
 racadm set idrac.users.3.enable 1
 racadm set idrac.users.3.privilege 0x1ff
 racadm set idrac.users.3.IpmiLanPrivilege 4
@@ -40,7 +50,6 @@ racadm set iDRAC.NTPConfigGroup.NTP1 $NTPServer1
 racadm set iDRAC.NTPConfigGroup.NTP2 $NTPServer2
 racadm set iDRAC.Nic.DNSRacName $DNSRacName
 racadm set iDRAC.Nic.DNSDomainName eng.vmware.com
-racadm look aoligei
 "
 
 # The following command is for getting Serial Number from the iDrac
@@ -50,22 +59,21 @@ racadm getsysinfo -s
 
 # Execute command in the iDrac through ssh
 	iDracRacadm=$iDracRacadmDellSet
-	sshpass -p calvin ssh -o StrictHostKeyChecking=no root@$iDracHostname > $TempSysInfo 2>&1 << Command
+	sshpass -p $iDracPassword ssh -o StrictHostKeyChecking=no $iDracUser@$iDracHostname > $TempSysInfo 2>&1 << Command
 $iDracRacadmDellSet
 $iDracRacadmDellGet
 Command
 	SSHableVerify=$?
-	echo $SSHableVerify
 }
 
 function ResultVerify(){
 # Verify the result of execute command
-	
 	DetailsInfo=''
 	ResultFailureInfo=''
 
 	for RacadmCommand in $(echo "$iDracRacadmDellSet" | awk '{print $3}')
 	do
+		# Verify SSH
 		if [[ $SSHableVerify != '0' ]];then
 			DetailInfo='SSHable verification failed'
 			ResultInfo="$(printf "\033[1;31m%-10s\033[0m" "Failure")"
@@ -74,6 +82,7 @@ function ResultVerify(){
 			ResultFailureInfo=''
 		fi
 		
+		# Verify Execute command result	
 		RacadmResult=$(cat $TempSysInfo | grep -A 2 $RacadmCommand | grep 'Object value modified successfully')
 		if [[ $RacadmResult != 'Object value modified successfully' ]];then
 			ResultFailureInfo="$ResultFailureInfo$RacadmCommand; "
@@ -86,7 +95,10 @@ function ResultVerify(){
 			DetailInfo="Done successfully"
 			ResultInfo="$(printf "\033[1;32m%-10s\033[0m" "Done")"
 		fi
+
+		# Get Serial Number info
 		SerialNumberInfo=$(cat $TempSysInfo | grep "Service \Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
+
 	done
 
 }

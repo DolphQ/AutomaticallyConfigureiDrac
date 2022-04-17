@@ -8,6 +8,7 @@
 # 3. Get Serial Number and Mac address from iDrac
 # 4. Set Time Zone and NTP servers
 # 5. Set DNS iDrac Name and Static DNS Domain Name
+# 6. Set Static DNS Domain Name
 
 # Add source script from other files
 source ./Output+ProgressBar.sh
@@ -24,9 +25,10 @@ function MainConfiguration(){
 
 	OutputType Title	# Output the header of table
 
-	for iDracHostnameInfo in $(sed -n '10,$p' Hostname-List);
+	for iDracHostnameInfo in $(cat Hostname-List | grep -A 9999 'Hostname:' | sed -n '2,$p' | awk '{print $1}')
 	do
 		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
+		
 		{
 			HostnameDNSTest		# Verify Hostname
 			if [[ $HostnameDNSResult != 'Yes' ]];then
@@ -39,9 +41,14 @@ function MainConfiguration(){
 				continue
 			fi	
 
+			ProgressBar&		# start a progress bar
+			ProgressBarPID=$!
+
 			ConfigurationiDracDell	# Configring for iDrac
 			ResultVerify		# Verify result
 			OutputType Done		# Output after done
+			
+			kill -9 $ProgressBarPID	# kill progress bar
 		}&
 
 # The maximum of processes is 10

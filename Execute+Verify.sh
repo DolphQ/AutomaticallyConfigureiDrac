@@ -29,8 +29,11 @@ iDracPasswordGet=$(cat Hostname_List | grep $iDracHostnameInfo | awk '{print $3}
 iDracPassword=${iDracPasswordGet:-'calvin'}
 iDracUser=${iDracUserGet:-'root'}
 
-NewAccount=$(cat Hostname_List | grep NewAccount | awk -F= '{print $2}')
+NewAccount=$(cat Hostname_List | grep "NewAccount=" | awk -F= '{print $2}')
 NewAccountPassword=$(cat Hostname_List | grep NewAccountPassword | awk -F= '{print $2}')
+TimeZone=$(cat Hostname_List | grep TimeZone | awk -F= '{print $2}')
+DNSDomainName=$(cat Hostname_List | grep DNSDomainName | awk -F= '{print $2}')
+
 
 # The following command is for setting that will be executed in the iDrac
 # The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".
@@ -44,12 +47,12 @@ racadm set idrac.users.3.IpmiSerialPrivilege 4
 racadm set idrac.users.3.SolEnable 1
 racadm set System.ServerPwr.PSRedPolicy 0
 racadm set System.Power.Hotspare.Enable 1
-racadm set iDRAC.Time.Timezone Asia/Shanghai
+racadm set iDRAC.Time.Timezone $TimeZone
 racadm set iDRAC.NTPConfigGroup.NTPEnable 1
 racadm set iDRAC.NTPConfigGroup.NTP1 $NTPServer1
 racadm set iDRAC.NTPConfigGroup.NTP2 $NTPServer2
 racadm set iDRAC.Nic.DNSRacName $DNSRacName
-racadm set iDRAC.Nic.DNSDomainName eng.vmware.com
+racadm set iDRAC.Nic.DNSDomainName $DNSDomainName
 "
 
 # The following command is for getting Serial Number from the iDrac
@@ -67,39 +70,42 @@ Command
 }
 
 function ResultVerify(){
-# Verify the result of execute command
+# Verify the result
 	DetailsInfo=''
 	ResultFailureInfo=''
-
-	for RacadmCommand in $(echo "$iDracRacadmDellSet" | awk '{print $3}')
-	do
-		# Verify SSH
-		if [[ $SSHableVerify != '0' ]];then
-			DetailInfo='SSHable verification failed'
-			ResultInfo="$(printf "\033[1;31m%-10s\033[0m" "Failure")"
-			continue
-		else
-			ResultFailureInfo=''
-		fi
+	
+	function CommandVerify(){
+	# Verify the Result of execute command
+		for RacadmCommand in $(echo "$iDracRacadmDellSet" | awk '{print $3}')
+		do
 		
-		# Verify Execute command result	
-		RacadmResult=$(cat $TempSysInfo | grep -A 2 $RacadmCommand | grep 'Object value modified successfully')
-		if [[ $RacadmResult != 'Object value modified successfully' ]];then
-			ResultFailureInfo="$ResultFailureInfo$RacadmCommand; "
-		fi
+			# Verify Execute command result	
+			RacadmResult=$(cat $TempSysInfo | grep -A 2 $RacadmCommand | grep 'Object value modified successfully')
+			if [[ $RacadmResult != 'Object value modified successfully' ]];then
+				ResultFailureInfo="$ResultFailureInfo$RacadmCommand; "
+			fi
+	
+			if [[ $ResultFailureInfo != '' ]];then
+				DetailInfo="Failure: $ResultFailureInfo"
+				ResultInfo="$(printf "\033[1;33m%-10s\033[0m" "Done")"
+			else
+				DetailInfo="Done successfully"
+				ResultInfo="$(printf "\033[1;32m%-10s\033[0m" "Done")"
+			fi
+	
+			# Get Serial Number info
+			SerialNumberInfo=$(cat $TempSysInfo | grep "Service \Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
 
-		if [[ $ResultFailureInfo != '' ]];then
-			DetailInfo=$ResultFailureInfo
-			ResultInfo="$(printf "\033[1;33m%-10s\033[0m" "Done")"
-		else
-			DetailInfo="Done successfully"
-			ResultInfo="$(printf "\033[1;32m%-10s\033[0m" "Done")"
-		fi
+		done
+	}
 
-		# Get Serial Number info
-		SerialNumberInfo=$(cat $TempSysInfo | grep "Service \Tag" | awk -F= '{print $2}' | sed 's/^[\ ]//g')
-
-	done
+	# Verify SSH
+	if [[ $SSHableVerify == '0' ]];then
+		CommandVerify
+	else
+		DetailInfo="Failure: SSHable verification"
+		ResultInfo="$(printf "\033[1;31m%-10s\033[0m" "Failure")"
+	fi
 
 }
 

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# AUTHOR: Dolph Qin
+# SCRIPT: iDrac_Configuration.sh
+# REV: 1.0.1
+# DATE: 18/4/2022
 # iDrac_Configuration: For iDrac/ILO Automation Configuration
 
 # This script can be:
@@ -30,12 +34,12 @@ function MainConfiguration(){
 		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
 		
 		{
-			HostnameDNSTest		# Verify Hostname
+			HostnameDNSVerify	# Verify Hostname
 			if [[ $HostnameDNSResult != 'Yes' ]];then
 				OutputType Failure
 				continue
 			fi
-			HostnamePingTest	# Verify Pingable
+			HostnamePingVerify	# Verify Pingable
 			if [[ $HostnamePingResult != 'Yes' ]];then
 				OutputType Failure
 				continue
@@ -65,7 +69,7 @@ function MainConfiguration(){
 	exit
 }
 
-function HostnameDNSTest(){
+function HostnameDNSVerify(){
 # To test resolving hostname
 	HostnameDNSTest_1=$(host $iDracHostname | grep $iDracHostname | awk '{print $2}')
 	HostnameDNSTest_2=$(host $iDracHostname | grep $iDracHostname | awk '{print $3}')
@@ -75,20 +79,20 @@ function HostnameDNSTest(){
 		iDracIPInfo=$HostnameDNSTest_3
 	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
 		HostnameDNSResult='No'
-		DetailInfo='DNS verification failed'
+		DetailInfo='Failure: DNS verification'
 	else
-		DetailInfo='DNS verification failed'
+		DetailInfo='Failure: DNS verification'
 	fi	
 }
 
-function HostnamePingTest(){
+function HostnamePingVerify(){
 # To test pingable for iDrac Hostname
 	HostnamePingTest=$(ping -w 1 $iDracIPInfo | grep loss | awk '{print $6}')
 	if [[ $HostnamePingTest == '0%'  ]];then
 		HostnamePingResult='Yes'
 	else
 		HostnamePingResult='No'
-		DetailInfo='Pingable verification failed'
+		DetailInfo='Failure: Pingable verification'
 	fi
 }
 

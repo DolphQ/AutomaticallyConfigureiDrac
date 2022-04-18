@@ -6,14 +6,16 @@ We will use default username(root) and password(calvin) if it's null you enterin
 
 Example as below:
 pek2-hs1-b9101
-pek2-hs1-c9101 admin admin
+pek2-hs1-c9101 admin adminpassword
 pek2-hs1-ds406
 ...
 ###################################################################################
 NewAccount=
 NewAccountPassword=
+TimeZone=
+DNSDomainName=
 Hostname:
-sha1-hs1-r1415 root VMware1!
+sha1-hs1-r1415 root calvin..
 dp-esxi
 sha1-hs1-r2344
 sha1-hs1-r1414

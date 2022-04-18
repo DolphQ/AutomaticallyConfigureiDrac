@@ -24,13 +24,13 @@ function ConfigurationiDracDell(){
 
 # Get iDrac User and use default username if it's null
 # Get iDrac Password and use default password if it's null
-iDracUserGet=$(cat Hostname-List | grep $iDracHostnameInfo | awk '{print $2}')
-iDracPasswordGet=$(cat Hostname-List | grep $iDracHostnameInfo | awk '{print $3}')
+iDracUserGet=$(cat Hostname_List | grep $iDracHostnameInfo | awk '{print $2}')
+iDracPasswordGet=$(cat Hostname_List | grep $iDracHostnameInfo | awk '{print $3}')
 iDracPassword=${iDracPasswordGet:-'calvin'}
 iDracUser=${iDracUserGet:-'root'}
 
-NewAccount=$(cat Hostname-List | grep NewAccount | awk -F= '{print $2}')
-NewAccountPassword=$(cat Hostname-List | grep NewAccountPassword | awk -F= '{print $2}')
+NewAccount=$(cat Hostname_List | grep NewAccount | awk -F= '{print $2}')
+NewAccountPassword=$(cat Hostname_List | grep NewAccountPassword | awk -F= '{print $2}')
 
 # The following command is for setting that will be executed in the iDrac
 # The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".

@@ -12,7 +12,7 @@
 
 # Add source script from other files
 source ./Output+ProgressBar.sh
-source ./PackageVerify.sh
+source ./Package_Verify.sh
 source ./Execute+Verify.sh
 
 
@@ -25,7 +25,7 @@ function MainConfiguration(){
 
 	OutputType Title	# Output the header of table
 
-	for iDracHostnameInfo in $(cat Hostname-List | grep -A 9999 'Hostname:' | sed -n '2,$p' | awk '{print $1}')
+	for iDracHostnameInfo in $(cat Hostname_List | grep -A 9999 'Hostname:' | sed -n '2,$p' | awk '{print $1}')
 	do
 		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
 		

@@ -17,7 +17,7 @@
 # Add source script from other files
 source ./Output+ProgressBar.sh
 source ./Package_Verify.sh
-source ./Execute+Verify.sh
+source ./Dell_Execute+Verify.sh
 
 
 function MainConfiguration(){
@@ -31,7 +31,8 @@ function MainConfiguration(){
 
 	for iDracHostnameInfo in $(cat Hostname_List | grep -A 9999 'Hostname:' | sed -n '2,$p' | awk '{print $1}')
 	do
-		iDracHostname=$iDracHostnameInfo-ilo.eng.vmware.com
+		DNSDomainName=$(cat Hostname_List | grep DNSDomainName | awk -F= '{print $2}')
+		iDracHostname=$iDracHostnameInfo.$DNSDomainName
 		
 		{
 			HostnameDNSVerify	# Verify Hostname
@@ -79,9 +80,9 @@ function HostnameDNSVerify(){
 		iDracIPInfo=$HostnameDNSTest_3
 	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
 		HostnameDNSResult='No'
-		DetailInfo='Failure: DNS verification'
+		DetailInfo='Failed: DNS verification'
 	else
-		DetailInfo='Failure: DNS verification'
+		DetailInfo='Failed: DNS verification'
 	fi	
 }
 
@@ -92,7 +93,7 @@ function HostnamePingVerify(){
 		HostnamePingResult='Yes'
 	else
 		HostnamePingResult='No'
-		DetailInfo='Failure: Pingable verification'
+		DetailInfo='Failed: Pingable verification'
 	fi
 }
 

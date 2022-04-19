@@ -23,10 +23,10 @@ function Output(){
 # Output infomation and table
 	case $1 in
 		String)
-			echo "$(printf "|%-18s" "$iDracHostnameInfo")$(printf "|%-16s" "$iDracIPInfo")$(printf "|%-15s" "$SerialNumberInfo")$(printf "|%-10s" "$ResultInfo")$(printf "|%-40s" "$DetailInfo")" >> ConfigurationResult.txt
+			echo "$(printf "|%-20s" "$iDracHostnameInfo")$(printf "|%-16s" "$iDracIPInfo")$(printf "|%-15s" "$SerialNumberInfo")$(printf "|%-10s" "$ResultInfo")$(printf "|%-40s" "$DetailInfo")" >> ConfigurationResult.txt
 			;;
 		Table)
-			echo "$(printf "|%-18s" "------------------")$(printf "|%-16s" "----------------")$(printf "|%-15s" "---------------")$(printf "|%-10s" "----------")$(printf "|%-30s" "------------------------------")" >> ConfigurationResult.txt
+			echo "$(printf "|%-20s" "--------------------")$(printf "|%-16s" "----------------")$(printf "|%-15s" "---------------")$(printf "|%-10s" "----------")$(printf "|%-30s" "------------------------------")" >> ConfigurationResult.txt
 			;;
 	esac
 }

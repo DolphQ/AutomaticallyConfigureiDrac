@@ -9,31 +9,19 @@ function ConfigurationiDracDell(){
 
 	DNSRacName=$(echo $iDracHostname | awk -F"." '{print $1}') # Get DNS Rac name
 
-# Verify Server's location to get best NTP server IP
-	ServerArea=$(echo $iDracHostname | awk -F"-" '{print $1}')
-	if [[ $ServerArea == 'pek2' ]];then
-		NTPServer1=10.117.0.1
-		NTPServer2=10.110.160.1
-	elif [[ $ServerArea == 'sha1' ]];then
-		NTPServer1=10.110.160.1
-		NTPServer2=10.117.0.1
-	else
-		NTPServer1=10.117.0.1
-		NTPServer2=10.111.0.1
-	fi
-
 # Get iDrac User and use default username if it's null
 # Get iDrac Password and use default password if it's null
-iDracUserGet=$(cat Hostname_List | grep $iDracHostnameInfo | awk '{print $2}')
-iDracPasswordGet=$(cat Hostname_List | grep $iDracHostnameInfo | awk '{print $3}')
-iDracPassword=${iDracPasswordGet:-'calvin'}
-iDracUser=${iDracUserGet:-'root'}
-
-NewAccount=$(cat Hostname_List | grep "NewAccount=" | awk -F= '{print $2}')
-NewAccountPassword=$(cat Hostname_List | grep NewAccountPassword | awk -F= '{print $2}')
-TimeZone=$(cat Hostname_List | grep TimeZone | awk -F= '{print $2}')
-DNSDomainName=$(cat Hostname_List | grep DNSDomainName | awk -F= '{print $2}')
-
+	iDracUserGet=$(cat Hostname_List | grep $iDracHostnameInfo | awk '{print $2}')
+	iDracPasswordGet=$(cat Hostname_List | grep $iDracHostnameInfo | awk '{print $3}')
+	iDracPassword=${iDracPasswordGet:-'calvin'}
+	iDracUser=${iDracUserGet:-'root'}
+	
+	NewAccount=$(cat Hostname_List | grep "NewAccount=" | awk -F= '{print $2}')
+	NewAccountPassword=$(cat Hostname_List | grep NewAccountPassword | awk -F= '{print $2}')
+	TimeZone=$(cat Hostname_List | grep TimeZone | awk -F= '{print $2}')
+	DNSDomainName=$(cat Hostname_List | grep DNSDomainName | awk -F= '{print $2}')
+	NTPServer1=$(cat Hostname_List | grep NTPServer1 | awk -F= '{print $2}')
+	NTPServer2=$(cat Hostname_List | grep NTPServer2 | awk -F= '{print $2}')
 
 # The following command is for setting that will be executed in the iDrac
 # The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".
@@ -103,7 +91,7 @@ function ResultVerify(){
 	if [[ $SSHableVerify == '0' ]];then
 		CommandVerify
 	else
-		DetailInfo="Failure: SSHable verification"
+		DetailInfo="Failed: SSHable verification"
 		ResultInfo="$(printf "\033[1;31m%-10s\033[0m" "Failure")"
 	fi
 

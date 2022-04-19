@@ -29,9 +29,9 @@ function MainConfiguration(){
 
 	OutputType Title	# Output the header of table
 
-	for iDracHostnameInfo in $(cat Hostname_List | grep -A 9999 'Hostname:' | sed -n '2,$p' | awk '{print $1}')
+	for iDracHostnameInfo in $(cat Hostname+ConfigField.txt | grep -A 9999 'Hostname:' | sed -n '2,$p' | awk '{print $1}')
 	do
-		DNSDomainName=$(cat Hostname_List | grep DNSDomainName | awk -F= '{print $2}')
+		DNSDomainName=$(cat Hostname+ConfigField.txt | grep DNSDomainName | awk -F= '{print $2}')
 		iDracHostname=$iDracHostnameInfo.$DNSDomainName
 		
 		{

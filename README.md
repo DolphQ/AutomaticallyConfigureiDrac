@@ -14,7 +14,7 @@ This script can be:
 0. Compelted the field in Hostname+ConfigField.txt
 
 1. Download the software package from github
-·sudo wget https://github.com/DolphQ/AutomaticallyConfigureiDrac.git·
+`sudo wget https://github.com/DolphQ/AutomaticallyConfigureiDrac.git`
 
 2. Into package
 `cd AutomaticallyConfigureiDrac/`

@@ -25,7 +25,8 @@ This script can be:
 4. Execute
 `./iDrac_Configuration.sh`
 
-<h1>Result</h>
+<h1>Result</h1>
+
 1. If Result is Failure, the configuration is failure
 2. If Result is Done marded yellow, some configuration is done, some configuration is failed. You can check the detail in Details
 3. If Result is Done marked green, all configurations is completed successfully.

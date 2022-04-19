@@ -23,7 +23,7 @@ This script can be:
 `chmod +x iDrac_Configuration.sh`
 
 4. Execute
-`./iDrac_Configuration.sh`
+`sudo ./iDrac_Configuration.sh`
 
 <h1>Result</h1>
 

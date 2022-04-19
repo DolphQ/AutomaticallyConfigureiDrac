@@ -20,7 +20,7 @@ This script can be:
 `cd AutomaticallyConfigureiDrac/`
 
 3. Add execute permission
-`chmod +x iDrac_Configuration.sh`
+`sudo chmod +x iDrac_Configuration.sh`
 
 4. Execute
 `sudo ./iDrac_Configuration.sh`

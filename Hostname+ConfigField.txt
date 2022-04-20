@@ -10,12 +10,12 @@ pek2-hs1-c9101-ilo admin adminpassword
 pek2-hs1-ds406-ilo
 ...
 ###################################################################################
-NewAccount=
-NewAccountPassword=
-TimeZone=
-DNSDomainName=
-NTPServer1=
-NTPServer2=
+NewAccount=vmware
+NewAccountPassword=ca$hc0w
+TimeZone=Asia/Shanghai
+DNSDomainName=eng.vmware.com
+NTPServer1=10.117.0.1
+NTPServer2=10.110.160.1
 
 Hostname:
 sha1-hs1-r1415-ilo root calvin

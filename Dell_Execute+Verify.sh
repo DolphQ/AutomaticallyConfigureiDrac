@@ -11,17 +11,17 @@ function ConfigurationiDracDell(){
 
 # Get iDrac User and use default username if it's null
 # Get iDrac Password and use default password if it's null
-	iDracUserGet=$(cat gHostname+ConfigField.txt | grep $iDracHostnameInfo | awk '{print $2}')
-	iDracPasswordGet=$(cat gHostname+ConfigField.txt | grep $iDracHostnameInfo | awk '{print $3}')
+	iDracUserGet=$(cat Hostname+ConfigField.txt | grep $iDracHostnameInfo | awk '{print $2}')
+	iDracPasswordGet=$(cat Hostname+ConfigField.txt | grep $iDracHostnameInfo | awk '{print $3}')
 	iDracPassword=${iDracPasswordGet:-'calvin'}
 	iDracUser=${iDracUserGet:-'root'}
 	
-	NewAccount=$(cat gHostname+ConfigField.txt | grep "NewAccount=" | awk -F= '{print $2}')
-	NewAccountPassword=$(cat gHostname+ConfigField.txt | grep NewAccountPassword | awk -F= '{print $2}')
-	TimeZone=$(cat gHostname+ConfigField.txt | grep TimeZone | awk -F= '{print $2}')
-	DNSDomainName=$(cat gHostname+ConfigField.txt | grep DNSDomainName | awk -F= '{print $2}')
-	NTPServer1=$(cat gHostname+ConfigField.txt | grep NTPServer1 | awk -F= '{print $2}')
-	NTPServer2=$(cat gHostname+ConfigField.txt | grep NTPServer2 | awk -F= '{print $2}')
+	NewAccount=$(cat Hostname+ConfigField.txt | grep "NewAccount=" | awk -F= '{print $2}')
+	NewAccountPassword=$(cat Hostname+ConfigField.txt | grep NewAccountPassword | awk -F= '{print $2}')
+	TimeZone=$(cat Hostname+ConfigField.txt | grep TimeZone | awk -F= '{print $2}')
+	DNSDomainName=$(cat Hostname+ConfigField.txt | grep DNSDomainName | awk -F= '{print $2}')
+	NTPServer1=$(cat Hostname+ConfigField.txt | grep NTPServer1 | awk -F= '{print $2}')
+	NTPServer2=$(cat Hostname+ConfigField.txt | grep NTPServer2 | awk -F= '{print $2}')
 
 # The following command is for setting that will be executed in the iDrac
 # The RACADM "System.Power" group will be deprecated in a future release of iDRAC firmware. The group attributes will be migrated to "System.ServerPwr".

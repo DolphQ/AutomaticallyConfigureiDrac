@@ -47,7 +47,7 @@ function OutputType(){
 case $1 in
 
 	Title) 
-		printf "\033[1;36mThe configuration result as following:\033[0m\n" > ConfigurationResult.txt
+		printf "\033[1;36mThe configuration result as follows:\033[0m\n" > ConfigurationResult.txt
 		iDracHostnameInfo='iDrac Hostname'
 		iDracIPInfo='iDrac IP'
 		SerialNumberInfo='Serial Number'

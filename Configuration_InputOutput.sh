@@ -53,7 +53,7 @@ function OutputType(){
 case $1 in
 
 	Title) 
-		echo "$(printf "\033[1;33mThe configuration result as following:\033[0m\n")
+		echo "$(printf "\033[1;33mThe configuration result as following list:\033[0m\n")
 $(printf "|%-18s" "------------------")$(printf "|%-16s" "----------------")$(printf "|%-15s" "---------------")$(printf "|%-13s" "-------------")$(printf "|%-18s" "------------------")$(printf "|%-18s" "------------------")$(printf "|%-12s" "------------")$(printf "|%-12s|" "------------")" > ConfigurationResult.txt
 		iDracHostnameInfo='iDrac Hostname'
 		iDracIPInfo='iDrac IP'

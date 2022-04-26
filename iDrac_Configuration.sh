@@ -23,26 +23,31 @@ source ./Dell_Execute+Verify.sh
 function MainConfiguration(){
 # Get ILO Hostname from filr Hostname_iDrac_List
 	
+	export Myself=$(whoami)
+
 	ControlNumber=1		# For Control the number processes
 
 	PackageVerify sshpass	# Verify sshpass package
 
 	OutputType Title	# Output the header of table
+	WriteCSV Title
 
-	for iDracHostnameInfo in $(cat Hostname+ConfigField.txt | grep -A 9999 'Hostname:' | sed -n '2,$p' | awk '{print $1}')
+	for iDracHostnameInfo in $(cat Hostname+ConfigField | grep -A 9999 'Hostname:' | sed -n '2,$p' | awk '{print $1}')
 	do
-		DNSDomainName=$(cat Hostname+ConfigField.txt | grep DNSDomainName | awk -F= '{print $2}')
+		DNSDomainName=$(cat Hostname+ConfigField | grep DNSDomainName | awk -F= '{print $2}')
 		iDracHostname=$iDracHostnameInfo.$DNSDomainName
 		
 		{
 			HostnameDNSVerify	# Verify Hostname
 			if [[ $HostnameDNSResult != 'Yes' ]];then
 				OutputType Failure
+				WriteCSV
 				continue
 			fi
 			HostnamePingVerify	# Verify Pingable
 			if [[ $HostnamePingResult != 'Yes' ]];then
 				OutputType Failure
+				WriteCSV
 				continue
 			fi	
 
@@ -52,6 +57,7 @@ function MainConfiguration(){
 			ConfigurationiDracDell	# Configring for iDrac
 			ResultVerify		# Verify result
 			OutputType Done		# Output after done
+			WriteCSV
 			
 			kill -9 $ProgressBarPID	# kill progress bar
 		}&
@@ -65,8 +71,7 @@ function MainConfiguration(){
 	done
 	wait
 
-	cat ConfigurationResult.txt
-	rm ConfigurationResult.txt
+	cat /home/$Myself/ConfigurationResult.txt
 	exit
 }
 
@@ -80,9 +85,8 @@ function HostnameDNSVerify(){
 		iDracIPInfo=$HostnameDNSTest_3
 	elif [[ $HostnameDNSTest_2 == 'not' && $HostnameDNSTest_3 == 'found:' ]];then
 		HostnameDNSResult='No'
-		DetailInfo='Failed: DNS verification'
 	else
-		DetailInfo='Failed: DNS verification'
+		HostnameDNSResult='No'
 	fi	
 }
 
@@ -93,7 +97,6 @@ function HostnamePingVerify(){
 		HostnamePingResult='Yes'
 	else
 		HostnamePingResult='No'
-		DetailInfo='Failed: Pingable verification'
 	fi
 }
 

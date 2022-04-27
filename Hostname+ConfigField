@@ -1,0 +1,24 @@
+###################################################################################
+Please enter the list of hostnames, usernames and passwords you want to configure,
+and NewAccount/password here.
+
+We will use default username(root) and password(calvin) if it's null
+
+Example as below:
+pek2-hs1-b9101-ilo
+pek2-hs1-c9101-ilo admin adminpassword
+pek2-hs1-ds406-ilo
+.....
+###################################################################################
+NewAccount=
+NewAccountPassword=
+TimeZone=
+DNSDomainName=
+NTPServer1=
+NTPServer2=
+
+Hostname:
+sha1-hs1-r1415-ilo root calvin
+dp-esxi-ilo
+sha1-hs1-r2344-ilo
+sha1-hs1-r1414-ilo
